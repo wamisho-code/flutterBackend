@@ -1,0 +1,9 @@
+target/
+.idea/
+data/
+*.iml
+.git/
+.gitignore
+.env
+.env.*
+!.env.example

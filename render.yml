@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: news-app-backend
+    env: docker
+    plan: free
+    # Since Dockerfile is in the root, Render builds it automatically.
+    # We will pass active spring profiles and connection details.
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Render automatically links the DB using the DATABASE_URL from the database service below
+      - key: DATABASE_URL
+        fromDatabase:
+          name: news-app-db
+          property: connectionString
+      # Auto-generate a secure random 256-bit key for JWT signing
+      - key: JWT_SECRET
+        generateValue: true
+      # These must be set by the user during the initial blueprint deploy screen on Render
+      - key: GOOGLE_CLIENT_IDS
+        sync: false
+      - key: GUARDIAN_API_KEY
+        sync: false
+      - key: JWT_EXPIRATION_MS
+        value: "86400000"
+
+databases:
+  - name: news-app-db
+    plan: free
+    # We use PostgreSQL as Render's native database service.
+    # The application is updated to support both MySQL (Railway) and PostgreSQL (Render) dynamically.
