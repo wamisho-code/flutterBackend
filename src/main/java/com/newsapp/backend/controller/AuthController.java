@@ -74,7 +74,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        // Auto authenticate after signup
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         signUpRequest.getEmail(),
@@ -106,7 +106,7 @@ public class AuthController {
         }
     }
 
-    // DTO classes
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

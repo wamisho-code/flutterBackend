@@ -36,7 +36,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } else if ("github".equalsIgnoreCase(registrationId)) {
             providerId = String.valueOf(oAuth2User.getAttribute("id"));
             if (!StringUtils.hasText(email)) {
-                // Github email can be null, fallback to login name
+
                 String login = oAuth2User.getAttribute("login");
                 email = login + "@github.com";
             }
@@ -55,7 +55,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         User user;
         if (userOptional.isPresent()) {
             user = userOptional.get();
-            // Update existing user details if provider matches
+
             user.setName(name);
             user = userRepository.save(user);
         } else {

@@ -32,7 +32,7 @@ public class User {
     @JsonIgnore
     private String password;
 
-    private String provider; // "local", "google", "github"
+    private String provider;
 
     private String providerId;
 

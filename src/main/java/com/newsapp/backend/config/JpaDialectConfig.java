@@ -24,7 +24,7 @@ public class JpaDialectConfig {
                     properties.put(AvailableSettings.DIALECT, "org.hibernate.dialect.H2Dialect");
                 }
             } catch (Exception ignored) {
-                // Fall back to spring.jpa.database-platform from application.properties
+
             }
         };
     }

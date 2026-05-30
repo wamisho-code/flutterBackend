@@ -92,17 +92,14 @@ public class NewsService {
 
         String combinedText = ((title != null ? title : "") + " " + (content != null ? content : "")).toLowerCase();
 
-        // 1. Location match
         if (isLocalMatch(article, countryCode, countryName)) {
             score += 50; 
         }
 
-        // 2. Category match
         if (category != null && categories.contains(category.trim().toLowerCase())) {
             score += 30;
         }
 
-        // 3. Keyword match (Content Similarity)
         if (keywords != null && !keywords.isEmpty()) {
             int keywordMatches = 0;
             for (String keyword : keywords) {
@@ -113,7 +110,6 @@ public class NewsService {
             score += (keywordMatches * 8); 
         }
 
-        // 4. Freshness boost
         String publishedAt = (String) article.get("publishedAt");
         if (publishedAt != null) {
             try {
@@ -125,7 +121,7 @@ public class NewsService {
                     score += 5;
                 }
             } catch (Exception e) {
-                // Ignore parsing errors
+
             }
         }
 
@@ -161,7 +157,6 @@ public class NewsService {
         String userCountryName = null;
         boolean isOldUser = false;
 
-        // 1. Extract User Profile (Activity)
         if (userPrincipal != null) {
             Optional<User> userOpt = userRepository.findWithBookmarksByEmail(userPrincipal.getEmail());
             if (userOpt.isPresent()) {
@@ -179,7 +174,7 @@ public class NewsService {
             }
         }
 
-        // 2. Resolve Location
+
         if (latitude != null && longitude != null) {
             Map<String, String> locInfo = reverseGeocode(latitude, longitude);
             if (locInfo != null) {
@@ -188,15 +183,13 @@ public class NewsService {
             }
         }
 
-        // 3. Fetch Candidates
-        // Candidate Set A: General Trending News
+
         try {
             candidatePool.addAll(getTrending(page, pageSize, excludeIds));
         } catch (Exception e) {
             log.warn("Failed to fetch trending candidates", e);
         }
 
-        // Candidate Set B: Location-based News
         List<Map<String, Object>> localCandidates = new ArrayList<>();
         if (userCountryCode != null) {
             try {
@@ -230,7 +223,7 @@ public class NewsService {
             }
         }
 
-        // Candidate Set C: Activity/Category-based News
+
         if (isOldUser && !bookmarkedCategories.isEmpty()) {
             try {
                 String catQuery = String.join(" OR ", bookmarkedCategories);
@@ -250,7 +243,7 @@ public class NewsService {
                 log.warn("Failed to fetch category candidates", e);
             }
         } else {
-            // New user without bookmarks - fetch some curated topics to add variety
+
             try {
                 String url = UriComponentsBuilder.fromHttpUrl(baseUrl + "/search")
                         .queryParam("q", "world OR technology OR business OR science")
@@ -269,7 +262,7 @@ public class NewsService {
             }
         }
 
-        // De-duplicate candidate pool by article ID (URL)
+
         Map<String, Map<String, Object>> uniqueCandidates = new LinkedHashMap<>();
         for (Map<String, Object> article : candidatePool) {
             String id = (String) article.get("id");
@@ -278,13 +271,13 @@ public class NewsService {
             }
         }
 
-        // If the pool is still empty, return empty to force client refresh/retry.
+
         if (uniqueCandidates.isEmpty()) {
             log.warn("All candidate sources returned empty. Returning no results.");
             return Collections.emptyList();
         }
 
-        // 4. AI Recommendation / Ranking Algorithm (Content-based Filtering)
+
         List<Map<String, Object>> rankedArticles = new ArrayList<>(uniqueCandidates.values());
         
         final Set<String> finalKeywords = userKeywords;
@@ -296,10 +289,10 @@ public class NewsService {
         rankedArticles.sort((a, b) -> {
             int scoreA = calculateRecommendationScore(a, finalKeywords, finalCategories, finalCountryCode, finalCountryName);
             int scoreB = calculateRecommendationScore(b, finalKeywords, finalCategories, finalCountryCode, finalCountryName);
-            return Integer.compare(scoreB, scoreA); // Descending order
+            return Integer.compare(scoreB, scoreA);
         });
 
-        // 5. Update categories for UI presentation and return top 15
+
         List<Map<String, Object>> finalSelection = new ArrayList<>();
         int count = Math.min(pageSize, rankedArticles.size());
         for (int i = 0; i < count; i++) {
@@ -319,7 +312,7 @@ public class NewsService {
         return filterExcluded(finalSelection, excludeIds);
     }
 
-    @SuppressWarnings("unchecked")
+
     private Map<String, String> reverseGeocode(Double lat, Double lon) {
         try {
             String nominatimUrl = String.format("https://nominatim.openstreetmap.org/reverse?lat=%f&lon=%f&format=json", lat, lon);
@@ -396,7 +389,7 @@ public class NewsService {
         return filtered;
     }
 
-    @SuppressWarnings("unchecked")
+
     private List<Map<String, Object>> fetchAndTransform(String url, String category) {
         try {
             log.info("Fetching news from URL: {}", url.replaceAll("api-key=[^&]+", "api-key=***"));
@@ -461,9 +454,9 @@ public class NewsService {
                 
                 transformed.put("publishedAt", art.get("webPublicationDate"));
                 
-                // Calculate dynamic read time
+
                 int wordsCount = content.split("\\s+").length;
-                int readTime = Math.max(1, wordsCount / 150); // ~150 words per minute
+                int readTime = Math.max(1, wordsCount / 150);
                 transformed.put("readTimeMinutes", readTime);
 
                 results.add(transformed);

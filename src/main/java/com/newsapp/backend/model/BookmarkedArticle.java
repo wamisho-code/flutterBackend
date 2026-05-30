@@ -23,7 +23,7 @@ public class BookmarkedArticle {
     @Id
     @EqualsAndHashCode.Include
     @Column(length = 512)
-    private String id; // Guardian article URL/id (max ~200 chars)
+    private String id;
 
     @Column(nullable = false)
     private String title;

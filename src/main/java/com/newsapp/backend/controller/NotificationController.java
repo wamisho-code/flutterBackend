@@ -33,7 +33,7 @@ public class NotificationController {
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamNotifications() {
-        // Create an emitter that stays alive for a long time (30 minutes)
+
         SseEmitter emitter = new SseEmitter(1800000L);
         this.emitters.add(emitter);
 
@@ -52,7 +52,7 @@ public class NotificationController {
             this.emitters.remove(emitter);
         });
 
-        // Send an initial handshake event
+
         try {
             Map<String, String> handshake = new HashMap<>();
             handshake.put("title", "Connected");
@@ -66,7 +66,7 @@ public class NotificationController {
         return emitter;
     }
 
-    // @Scheduled(fixedRate = 45000)
+
     public void broadcastMockNews() {
         if (emitters.isEmpty()) {
             return;

@@ -22,7 +22,7 @@ public class RailwayDataSourceConfig {
     @Bean
     @Primary
     public DataSource dataSource() {
-        // 1. Check if standard SPRING_DATASOURCE_URL is configured
+
         String springJdbcUrl = env("SPRING_DATASOURCE_URL");
         if (!isBlank(springJdbcUrl)) {
             log.info("Connecting to database using SPRING_DATASOURCE_URL");
@@ -34,7 +34,7 @@ public class RailwayDataSourceConfig {
             return dataSource;
         }
 
-        // 2. Check for Render / Heroku / generic PostgreSQL: DATABASE_URL
+
         String databaseUrl = env("DATABASE_URL");
         DbUrlParts parsedPg = parseDbUrl(databaseUrl);
         if (parsedPg != null && "postgresql".equals(parsedPg.driver())) {
@@ -51,7 +51,7 @@ public class RailwayDataSourceConfig {
             return dataSource;
         }
 
-        // 3. Check for Railway / generic MySQL: MYSQLHOST or MYSQL_URL
+
         String host = env("MYSQLHOST");
         String port = env("MYSQLPORT");
         String database = env("MYSQLDATABASE");
@@ -70,7 +70,7 @@ public class RailwayDataSourceConfig {
         }
 
         if (isBlank(host)) {
-            // Also check if DATABASE_URL was parsed as mysql
+
             if (parsedPg != null && "mysql".equals(parsedPg.driver())) {
                 host = parsedPg.host();
                 port = parsedPg.port();
